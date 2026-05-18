@@ -78,3 +78,6 @@ Development requires:
 Mobile and UX development for broad participation
 
 Sponsorship helps keep the project moving and funds the audits and infrastructure needed for safe, production‑grade releases.
+
+## Transparency Note
+This repo is intentionally a funding and outreach hub. The full PoWChain codebase remains private while core development and audits are in progress. Public modules are selected to be safe, useful, and demonstrative of the project’s technical direction.
