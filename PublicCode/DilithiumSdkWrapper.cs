@@ -96,7 +96,7 @@ public sealed class DilithiumSdkWrapper : IDisposable
     
     /// <summary>
     /// Exports the raw FIPS-204 private key (full expanded key material).
-    /// ?? SECURITY WARNING: This exposes unencrypted private key material.
+    /// SECURITY WARNING: This exposes unencrypted private key material.
     /// Use ExportRawFips204PrivateKeyEncrypted for production scenarios.
     /// </summary>
     public byte[] ExportRawFips204PrivateKey() => FipsInterop.ExportRawFips204PrivateKey(_mldsa);
@@ -122,7 +122,7 @@ public sealed class DilithiumSdkWrapper : IDisposable
 
     /// <summary>
     /// Imports a raw FIPS-204 private key (full expanded key material).
-    /// ?? SECURITY WARNING: Ensure the input key is securely sourced and handled.
+    /// SECURITY WARNING: Ensure the input key is securely sourced and handled.
     /// </summary>
     public static DilithiumSdkWrapper ImportRawFips204PrivateKey(byte[] rawPrivateKey, DilithiumSuite suite)
     {
@@ -133,7 +133,7 @@ public sealed class DilithiumSdkWrapper : IDisposable
 
     /// <summary>
     /// Imports a raw FIPS-204 private key (full expanded key material).
-    /// ?? SECURITY WARNING: Ensure the input key is securely sourced and handled.
+    /// SECURITY WARNING: Ensure the input key is securely sourced and handled.
     /// </summary>
     public static DilithiumSdkWrapper ImportRawFips204PrivateKey(ReadOnlySpan<byte> rawPrivateKey, DilithiumSuite suite)
     {
