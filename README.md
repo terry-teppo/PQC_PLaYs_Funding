@@ -48,7 +48,7 @@ Why publish: cryptography interoperability is broadly useful and safe to share; 
 
 ### Prototype (current)
 
- - Multiple mining algorithms (including two mobile‑optimized)
+ - Multiple mining algorithms (including one mobile‑optimized)
  - SQL 2025 JSON event store and partial replay
  - OAuth integration with Microsoft/Google
  - Partical Digime KYC integration
@@ -72,12 +72,12 @@ Performance tuning and scaling
 Development requires:
 
  - Engineering time for core protocol, clients, and integrations
- - Infrastructure (CI, testnets, compute for mining tests)
+ - Infrastructure (testnets, compute for mining tests)
  - Security audits and legal/compliance work for enterprise adoption
 
 Mobile and UX development for broad participation
 
-Sponsorship helps keep the project moving and funds the audits and infrastructure needed for safe, production‑grade releases.
+Sponsorship helps keep the project moving and funds the devleopment, audits and infrastructure needed for safe, production‑grade releases.
 
 ## Transparency Note
 This repo is intentionally a funding and outreach hub. The full PoWChain codebase remains private while core development and audits are in progress. Public modules are selected to be safe, useful, and demonstrative of the project’s technical direction.
