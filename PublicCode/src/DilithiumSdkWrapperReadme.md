@@ -1,114 +1,245 @@
 
-# DilithiumSdkWrapper
+# **DilithiumSdkWrapper — .NET 10 Wrapper for FIPS‑204 ML‑DSA (Dilithium)**
 
-**DilithiumSdkWrapper** is a focused, clean-room .NET 10 wrapper around the platform ML-DSA (Dilithium) post-quantum signature primitives.
+A lightweight, high‑level .NET 10 wrapper around the platform‑native **ML‑DSA (Dilithium)** implementation provided by **System.Security.Cryptography**. This wrapper simplifies key generation, signing, verification, PEM import/export, encrypted PKCS#8 handling, and FIPS‑204 raw key operations.
 
-This single file demonstrates a safe, idiomatic, production-ready approach to working with Dilithium keys and signatures in .NET 10 while providing interoperability with FIPS 204 raw formats and standard PEM/PKCS#8 containers.
+- ![Emerging Post Quantum Cryptography and the Importance of PUF based Root ...](https://ts4.mm.bing.net/th?id=OIP.4SJo6rIdkzX5btWxw7IFeAHaDT&pid=15.1&o=7&rm=3)
+    
+- ![#cryptography #postquantumsecurity #kyber #dilithium #digitalsignatures ...](https://ts3.mm.bing.net/th?id=OIP.7nPvH4uS0o6xqSXx6hfNvwHaG8&pid=15.1&o=7&rm=3)
+    
+- ![What Is Post-Quantum Cryptography (PQC)? A Complete Guide - Palo Alto ...](https://ts1.mm.bing.net/th?id=OIP.0pDQnw8IX-LgcTUTAD0uvAHaFv&pid=15.1&o=7&rm=3)
+    
+- ![Syrga2: Post-Quantum Hash-Based Signature Scheme](https://ts3.mm.bing.net/th?id=OIP.ffUbsrx9H2J_4WmaGFFjgAHaDF&pid=15.1&o=7&rm=3)
+    
 
-Use this module as a standalone interoperability helper or as a public proof point of the engineering quality behind the larger PoWChain project.
+## **Features**
 
----
+- High‑level API over `MLDsa` (FIPS‑204 Dilithium)
+    
+- Key generation for all supported suites (Dilithium2/3/5)
+    
+- Sign and verify data using byte arrays or spans
+    
+- Export/import keys in:
+    
+    - **PEM (PKCS#8)**
+        
+    - **Encrypted PKCS#8 (PBES2)**
+        
+    - **Raw FIPS‑204 key formats**
+        
+- Span‑based APIs for zero‑allocation workflows
+    
+- Safe disposal of underlying cryptographic resources
+    
+- Suite‑aware import logic
+    
 
-## Key Capabilities
+# **API Overview**
 
-- **Create and use Dilithium keys** via the .NET 10 ML-DSA API surface.
-- **Sign and verify** data using post-quantum signatures.
-- **Export and import** keys in multiple formats:
-    - PEM (SubjectPublicKeyInfo / PKCS#8)
-    - Encrypted PKCS#8 (password-protected)
-    - Raw FIPS 204 key formats for interoperability with other PQC tooling
-- **Span-friendly overloads** for high-performance scenarios.
-- **Explicit security warnings** for operations that expose raw private key material.
+## **Construction**
 
----
-
-## Why Publish This File?
-
-- **Safe to share** — Cryptographic interoperability helpers are useful to the community and do not reveal private protocol logic.
-- **Proof of competence** — Demonstrates correct use of the GA .NET 10 PQC APIs and careful handling of sensitive key material.
-- **Reproducible** — The wrapper is self-contained and can be used as a building block or reference implementation.
-
----
-
-## Example Usage
-
-The examples below show typical usage patterns. Adapt names and parameters to match the exact API surface in the file.
-
-### Create a Key Pair and Sign Data
-
-```
-using System;using System.Text;// Create a new Dilithium key pair (ML-DSA)using var key = DilithiumSdkWrapper.GenerateKeyPair();// Sign some databyte[] message = Encoding.UTF8.GetBytes("hello world");byte[] signature = DilithiumSdkWrapper.SignData(key, message);// Verify the signaturebool ok = DilithiumSdkWrapper.VerifyData(    key.PublicKey,    message,    signature);Console.WriteLine(ok ? "Signature valid" : "Signature invalid");
-```
-
-### Export and Import PEM
-
-```
-// Export to PEMstring publicPem = DilithiumSdkWrapper.ExportPublicKeyToPem(key);string privatePem = DilithiumSdkWrapper.ExportPrivateKeyToPem(key);// Import from PEMusing var imported = DilithiumSdkWrapper.ImportFromPem(privatePem);
+```csharp
+var wrapper = new DilithiumSdkWrapper(DilithiumSuite.Dilithium3);
 ```
 
-### Encrypted PKCS#8 Export and Import
+### **Constructor**
 
-```
-string password = "correct horse battery staple";byte[] encryptedPkcs8 =    DilithiumSdkWrapper.ExportEncryptedPkcs8(key, password);// Later, import with passwordusing var importedKey =    DilithiumSdkWrapper.ImportEncryptedPkcs8(        encryptedPkcs8,        password);
-```
-
-### Raw FIPS 204 Interoperability
-
-```
-// Export raw FIPS 204 private key bytesbyte[] rawPrivate =    DilithiumSdkWrapper.ExportRawFips204PrivateKey(key);// Import raw FIPS 204 private key bytesusing var keyFromRaw =    DilithiumSdkWrapper.ImportRawFips204PrivateKey(rawPrivate);
+```csharp
+public DilithiumSdkWrapper(DilithiumSuite suite)
 ```
 
----
+Creates a new ML‑DSA keypair using the specified suite.
 
-## Security Notes
+## **Properties**
 
-- **Do not** publish or store unencrypted private key material.
-- Use **encrypted PKCS#8** exports for persistent storage.
-- Treat all raw byte arrays containing private keys as sensitive memory and zero them when no longer needed.
-- This wrapper intentionally avoids unsafe code and custom cryptographic primitives.
-- All cryptographic operations rely exclusively on the platform `System.Security.Cryptography` APIs.
+### **Algorithm**
 
----
+```csharp
+public MLDsaAlgorithm Algorithm { get; }
+```
 
-## Tests and Validation
+Returns the underlying algorithm instance.
 
-Add a small unit test suite that covers:
+### **IsSupported**
 
-- Key generation, signing, and verification round trips
-- PEM export/import round trips
-- Encrypted PKCS#8 export/import round trips
-- Raw FIPS 204 export/import round trips
+```csharp
+public static bool IsSupported { get; }
+```
 
-A minimal `dotnet test` project makes the wrapper easier to adopt and increases confidence for downstream users.
+Indicates whether ML‑DSA is supported on the current platform.
 
----
+# **Signing & Verification**
 
-## Contributing
+### **Sign data**
 
-This file is published as a safe, standalone module. Contributions are welcome.
+```csharp
+public byte[] SignData(byte[] data)
+public byte[] SignData(ReadOnlySpan<byte> data)
+```
 
-- Open small, focused pull requests (tests, documentation, or minor API ergonomics).
-- Avoid changes that reveal private protocol logic from the main PoWChain project.
-- Report security issues privately (see below).
+### **Verify signature**
 
----
+```csharp
+public bool VerifyData(byte[] data, byte[] signature)
+public bool VerifyData(ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature)
+```
 
-## Security and Responsible Disclosure
+# **PEM Export / Import**
 
-If you discover a security vulnerability, **do not** open a public issue.
+## **Export public key (PEM)**
 
-Contact the project lead directly with:
+```csharp
+public string ExportPublicKeyPem()
+```
 
-- A reproducible report
-- Impact assessment
-- Suggested mitigations (if available)
+## **Export private key (unencrypted PKCS#8 PEM)**
 
-Maintainers will acknowledge the report and coordinate remediation and disclosure.
+```csharp
+public string ExportPrivateKeyPem()
+```
 
----
+## **Import public key (PEM)**
 
-## Contact
+```csharp
+public void ImportPublicKeyPem(string pem)
+```
 
-- **Project Lead:** Terry
-- **Repository:** `pqcplaysfunding/PublicCode/DilithiumSdkWrapper.cs`
-- **Funding and sponsorship:** See the `pqcplaysfunding` funding hub.
+## **Import private key (unencrypted PKCS#8 PEM)**
+
+```csharp
+public void ImportPrivateKeyPem(string pem)
+```
+
+# **Encrypted PKCS#8 Private Keys**
+
+## **Export encrypted private key**
+
+```csharp
+public string ExportEncryptedPrivateKeyPem(ReadOnlySpan<char> password)
+```
+
+## **Import encrypted private key**
+
+```csharp
+public void ImportEncryptedPrivateKeyPem(string pem, ReadOnlySpan<char> password)
+```
+
+# **Raw FIPS‑204 Key Support**
+
+These APIs allow direct access to the raw ML‑DSA key material as defined in FIPS‑204.
+
+## **Export raw private key**
+
+```csharp
+public byte[] ExportRawFips204PrivateKey()
+```
+
+## **Export raw private key (encrypted)**
+
+```csharp
+public byte[] ExportRawFips204PrivateKeyEncrypted(ReadOnlySpan<char> password)
+```
+
+## **Export raw public key**
+
+```csharp
+public byte[] ExportRawFips204PublicKey()
+```
+
+# **Import Raw FIPS‑204 Keys**
+
+## **Import raw private key**
+
+```csharp
+public void ImportRawFips204PrivateKey(ReadOnlySpan<byte> key, DilithiumSuite suite)
+```
+
+## **Import raw private key (encrypted)**
+
+```csharp
+public void ImportRawFips204PrivateKeyEncrypted(
+    ReadOnlySpan<byte> encryptedKey,
+    ReadOnlySpan<char> password,
+    DilithiumSuite suite)
+```
+
+## **Import raw public key**
+
+```csharp
+public void ImportRawFips204PublicKey(ReadOnlySpan<byte> key, DilithiumSuite suite)
+```
+
+# **Disposal**
+
+The wrapper owns an internal `MLDsa` instance and must be disposed:
+
+```csharp
+public void Dispose()
+```
+
+Usage:
+
+```csharp
+using var wrapper = new DilithiumSdkWrapper(DilithiumSuite.Dilithium2);
+```
+
+# **Example Usage**
+
+## **Generate keys, sign, verify**
+
+csharp
+
+```
+using var dil = new DilithiumSdkWrapper(DilithiumSuite.Dilithium3);
+
+var data = Encoding.UTF8.GetBytes("hello world");
+var sig = dil.SignData(data);
+
+bool ok = dil.VerifyData(data, sig);
+Console.WriteLine($"Signature valid: {ok}");
+```
+
+## **Export & import PEM keys**
+
+```csharp
+
+using var dil = new DilithiumSdkWrapper(DilithiumSuite.Dilithium2);
+
+string pubPem = dil.ExportPublicKeyPem();
+string privPem = dil.ExportPrivateKeyPem();
+
+var dil2 = new DilithiumSdkWrapper(DilithiumSuite.Dilithium2);
+dil2.ImportPublicKeyPem(pubPem);
+dil2.ImportPrivateKeyPem(privPem);
+```
+
+## **Encrypted PKCS#8**
+
+```csharp
+string encryptedPem = dil.ExportEncryptedPrivateKeyPem("mypassword");
+
+var dil3 = new DilithiumSdkWrapper(DilithiumSuite.Dilithium3);
+dil3.ImportEncryptedPrivateKeyPem(encryptedPem, "mypassword");
+```
+
+## **Raw FIPS‑204 keys**
+
+```csharp
+byte[] rawPriv = dil.ExportRawFips204PrivateKey();
+byte[] rawPub  = dil.ExportRawFips204PublicKey();
+
+var dil4 = new DilithiumSdkWrapper(DilithiumSuite.Dilithium3);
+dil4.ImportRawFips204PrivateKey(rawPriv, DilithiumSuite.Dilithium3);
+dil4.ImportRawFips204PublicKey(rawPub, DilithiumSuite.Dilithium3);
+```
+
+# **Security Notes**
+
+- Private keys should be stored encrypted whenever possible.
+    
+- Avoid keeping raw key material in memory longer than necessary.
+    
+- Always dispose the wrapper to release sensitive resources.
+    
+- Never transmit private keys over insecure channels.
